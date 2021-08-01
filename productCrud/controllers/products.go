@@ -3,8 +3,6 @@
 package controllers
 
 import (
-	// "bookc/models"
-
 	"net/http"
 
 	"github.com/gin-gonic/gin"
