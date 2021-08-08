@@ -2,8 +2,19 @@
 
 package models
 
+import "github.com/jinzhu/gorm"
+
+//product struct
 type Product struct {
-	ID          uint   `json:"id" gorm:"primary_key"`
-	ProductName string `json:"productname"`
-	Price       int    `json:"price"`
+	gorm.Model
+	ProductName string  `json:"productname" binding:"required"`
+	Price       int     `json:"price" binding:"required"`
+	Address     Address `gorm:"embedded;embeddedPrefix:address"`
+}
+
+//embedded struct
+type Address struct {
+	Village string `json:"village" binding:"required"`
+	State   string `json:"state" binding:"required"`
+	Pincode int    `json:"pincode" binding:"required"`
 }

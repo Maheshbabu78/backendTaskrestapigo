@@ -3,6 +3,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,9 +13,9 @@ import (
 
 //create a product
 func CreateProduct(c *gin.Context) {
-	// Validate input
 	var input models.Product
 	if err := c.ShouldBindJSON(&input); err != nil {
+		log.Println("Please check the fields")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -37,39 +38,42 @@ func Findproductbyid(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	id := c.Param("id")
 	if err := db.Where("id = ?", id).First(&product).Error; err != nil {
+		log.Println("The product is not found with this Id:", id)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Product not found!"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": product})
+	c.JSON(http.StatusOK, gin.H{"Product": product})
 }
 
 // Update a product by id
 func Updateproduct(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var product models.Product
-	if err := db.Where("id = ?", c.Param("id")).First(&product).Error; err != nil {
+	id := c.Param("id")
+	if err := db.Where("id = ?", id).First(&product).Error; err != nil {
+		log.Println("The product is not available with this Id", id)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Product not found!"})
 		return
 	}
-
-	// Validate input
 	var input models.Product
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	db.Model(&product).Updates(input)
-	c.JSON(http.StatusOK, gin.H{"data": product})
+	c.JSON(http.StatusOK, gin.H{"Updated Product Is": product})
 }
 
 // Delete a product by id
 func DeleteProduct(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var product models.Product
-	if err := db.Where("id = ?", c.Param("id")).First(&product).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Product not found!"})
+	id := c.Param("id")
+	if err := db.Where("id = ?", id).First(&product).Error; err != nil {
+		log.Println("Please check Id:", id)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Product is not found!"})
 		return
 	}
 	db.Delete(&product)
-	c.JSON(http.StatusOK, gin.H{"data": true})
+	c.JSON(http.StatusOK, gin.H{"deleted Product is": product})
 }
