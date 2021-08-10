@@ -2,9 +2,15 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
+	"main.go/productCrud/controllers"
 	"main.go/productCrud/models"
+	"main.go/productCrud/routes"
 )
 
 func TestProductStruct(t *testing.T) {
@@ -59,4 +65,34 @@ func TestProductStruct(t *testing.T) {
 
 	}
 
+}
+func TestGetProduct(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	handler := controllers.Findproductbyid
+	router := gin.Default()
+	router.GET("/product/:id", handler)
+
+	req, err := http.NewRequest("GET", "/product/2", nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	resp := httptest.NewRecorder()
+	router.ServeHTTP(resp, req)
+	//assert.Equal(t, resp.Code, 200)
+	assert.Equal(t, resp.Code, 200)
+}
+func TestGetProducts(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db := models.ConnecttoDb()
+	db.AutoMigrate(&models.Product{})
+	testRouter := routes.RoutersNavigation(db)
+	req, err := http.NewRequest(http.MethodGet, "/product/8", nil)
+	if err != nil {
+		t.Fatalf("Couldn't create request: %v\n", err)
+	}
+	w := httptest.NewRecorder()
+	testRouter.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, w.Code)
+	}
 }
