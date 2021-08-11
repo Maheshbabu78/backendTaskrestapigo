@@ -69,7 +69,37 @@ func TestGetProducts(t *testing.T) {
 	db := models.ConnecttoDb()
 	db.AutoMigrate(&models.Product{})
 	testRouter := routes.RoutersNavigation(db)
-	req, err := http.NewRequest(http.MethodGet, "/product/9", nil)
+	req, err := http.NewRequest(http.MethodGet, "/products", nil)
+	if err != nil {
+		t.Fatalf("request error: %v\n", err)
+	}
+	w := httptest.NewRecorder()
+	testRouter.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, w.Code)
+	}
+}
+func TestGetProduct(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db := models.ConnecttoDb()
+	db.AutoMigrate(&models.Product{})
+	testRouter := routes.RoutersNavigation(db)
+	req, err := http.NewRequest(http.MethodGet, "/product/3", nil)
+	if err != nil {
+		t.Fatalf("Couldn't create request: %v\n", err)
+	}
+	w := httptest.NewRecorder()
+	testRouter.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, w.Code)
+	}
+}
+func TestDeleteProduct(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db := models.ConnecttoDb()
+	db.AutoMigrate(&models.Product{})
+	testRouter := routes.RoutersNavigation(db)
+	req, err := http.NewRequest(http.MethodDelete, "/deleteproduct/7", nil)
 	if err != nil {
 		t.Fatalf("Couldn't create request: %v\n", err)
 	}
